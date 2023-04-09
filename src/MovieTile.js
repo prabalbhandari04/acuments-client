@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Card, CardActionArea, CardContent, CardMedia, Typography, Button } from '@material-ui/core';
 import MovieDetails from './MovieDetails';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -39,9 +40,6 @@ const MovieTile = ({ movie }) => {
             </Typography>
           </CardContent>
         </CardActionArea>
-        <Button size="small" color="primary" onClick={() => alert('Add to Watchlist')}>
-          Add to watchlist
-        </Button>
         {showDetails && <MovieDetails movieId={movie.id} onClose={toggleDetails} />}
       </Card>
     </div>

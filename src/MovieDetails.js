@@ -51,6 +51,9 @@ const MovieDetails = ({ movieId, onClose }) => {
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
 
+  const [message, setMessage] = useState('');
+  const [alert, setAlert] = useState(false);
+
   useEffect(() => {
     const fetchMovie = async () => {
       const response = await axios.get(`http://localhost:5050/movies/${movieId}`);
@@ -62,16 +65,38 @@ const MovieDetails = ({ movieId, onClose }) => {
 
   const handleAddToWatchlist = async () => {
     try {
-      await axios.post('http://localhost:5050/watchlist', { movieId });
-      alert('Movie added to watchlist!');
+        const response = await axios.get(`http://localhost:5050/watchlistId/${movieId}`);
+        if (response.data) {
+            setMessage('Movie is already in watchlist!');
+            setAlert(true);
+        } else {
+            await axios.post('http://localhost:5050/watchlist', { movieId });
+            setMessage('Movie added to watchlist!');
+            setAlert(true);
+        }
     } catch (error) {
-      console.error(error);
-      alert('Failed to add movie to watchlist');
+        if (error.response && error.response.status === 404) {
+            await axios.post('http://localhost:5050/watchlist', { movieId });
+            setMessage('Movie added to watchlist!');
+            setAlert(true);
+        } else {
+            console.error(error);
+            setMessage('Failed to add movie to watchlist');
+            setAlert(true);
+        }
     }
-  };
+};
+
+
+  
 
   return (
     <Dialog open={!!movie} onClose={onClose} maxWidth="md">
+      {alert && (
+        <div style={{ textAlign: 'center', color: 'red', fontSize: '24px' }}>
+            {message}
+        </div>
+        )}
       <DialogTitle>
         <Typography variant="h4">{movie?.title}</Typography>
         <IconButton className={classes.closeButton} onClick={onClose}>
