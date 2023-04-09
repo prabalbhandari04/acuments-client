@@ -50,20 +50,29 @@ const MovieDetails = ({ movieId, onClose }) => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const classes = useStyles();
-
+  const [inWatchlist, setInWatchlist] = useState(false);
   const [message, setMessage] = useState('');
   const [alert, setAlert] = useState(false);
 
   useEffect(() => {
     const fetchMovie = async () => {
-      const response = await axios.get(`http://localhost:5050/movies/${movieId}`);
-      setMovie(response.data);
-      setLoading(false);
-    };
+        const movieResponse = await axios.get(`http://localhost:5050/movies/${movieId}`);
+        setMovie(movieResponse.data);
+        setLoading(false);
+      
+        const watchlistResponse = await axios.get(`http://localhost:5050/watchlist/${movieId}`);
+        setInWatchlist(!!watchlistResponse.data);
+      };
     fetchMovie();
   }, [movieId]);
 
   const handleAddToWatchlist = async () => {
+    if (inWatchlist) {
+        setMessage('Movie is already in watchlist!');
+        setAlert(true);
+        return;
+      }
+    
     try {
         const response = await axios.get(`http://localhost:5050/watchlistId/${movieId}`);
         if (response.data) {
@@ -127,14 +136,16 @@ const MovieDetails = ({ movieId, onClose }) => {
                 </Typography>
               </CardContent>
               <DialogActions>
-                <Button
-                  className={classes.addToWatchlist}
-                  variant="contained"
-                  color="primary"
-                  onClick={handleAddToWatchlist}
+              <Button
+                className={classes.addToWatchlist}
+                variant="contained"
+                color="primary"
+                onClick={handleAddToWatchlist}
+                disabled={inWatchlist}
                 >
-                  Add to Watchlist
+                {inWatchlist ? 'Already added to Watchlist' : 'Add to Watchlist'}
                 </Button>
+
               </DialogActions>
             </div>
           </div>
